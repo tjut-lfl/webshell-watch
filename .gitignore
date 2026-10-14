@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# 运行时产物 / runtime artifacts
+selftest-output/
+demo-output/
+.webshell-watch/
+.webshell-watch-state/
+*.jsonl
+*.log
+*.pcap
+*.pcapng
+
+# 编辑器与系统 / editors & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

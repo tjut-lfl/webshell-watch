@@ -1,0 +1,135 @@
+{
+  "_说明": [
+    "Windows 版默认配置（IIS / Tomcat / nginx for Windows）。",
+    "安装到 C:\\ProgramData\\webshell-watch\\config.json。",
+    "linux.json 是 Linux 版配置，两份文件结构完全一致，只是默认路径不同。",
+    "",
+    "重要：IIS 原生日志不记录 POST 请求体，所以 Windows 上的检测主力是",
+    "      ① IIS 日志（URL/UA/查询串）② Web 目录文件巡检 ③ 落地目录扫描；",
+    "      安全事件日志（Security）需要管理员权限，非管理员运行时会被自动跳过并提示。"
+  ],
+
+  "analyzer": {
+    "min_score": 25,
+    "try_decrypt": true,
+    "passwords": [
+      "rebeyond", "admin", "123456", "pass", "password", "root",
+      "test", "cmd", "shell", "key", "webshell", "hack"
+    ],
+    "max_body_scan": 65536,
+    "disabled_rules": [],
+    "enabled_tools": ["蚁剑", "冰蝎", "哥斯拉", "加密隧道", "通用WebShell", "防守告警"]
+  },
+
+  "_weblog_说明": "若你的 Windows 上跑的是 nginx/apache/tomcat，把日志路径填到这里；IIS 请用下面的 iislog",
+  "weblog": {
+    "enabled": true,
+    "sources": [
+      { "name": "nginx-win", "path": "C:\\nginx\\logs\\access.log", "format": "nginx_combined_body" },
+      { "name": "tomcat", "path": "C:\\tomcat\\logs\\localhost_access_log.txt", "format": "" }
+    ],
+    "from_beginning": false,
+    "max_line_bytes": 262144
+  },
+
+  "iislog": {
+    "enabled": true,
+    "_说明": "path 可以是 IIS 日志目录（按站点分子目录），工具会自动挑选最新的若干个 .log 文件",
+    "sources": [
+      { "name": "iis-default", "path": "C:\\inetpub\\logs\\LogFiles", "newest_files": 3 }
+    ],
+    "from_beginning": false,
+    "max_line_bytes": 262144
+  },
+
+  "winevent": {
+    "enabled": true,
+    "_说明": "Security 日志需要管理员权限；非管理员运行时该模块自动跳过并给出提示",
+    "log_name": "Security",
+    "event_ids": [],
+    "max_events": 200,
+    "fail_window": 300,
+    "fail_threshold": 10,
+    "trusted_ips": [],
+    "use_whoami_filter": true
+  },
+
+  "windrop": {
+    "enabled": true,
+    "_说明": "webshell 拿到执行权限后最常把工具下载到这些目录；只看近期新增的可执行文件",
+    "directories": [
+      "C:\\Windows\\Temp",
+      "C:\\Users\\Public",
+      "C:\\ProgramData",
+      "C:\\Windows\\Tasks",
+      "C:\\Windows\\System32\\Tasks"
+    ],
+    "lookback_days": 7,
+    "max_files": 20000
+  },
+
+  "filescan": {
+    "enabled": true,
+    "_说明": "Web 根目录：IIS 默认是 C:\\inetpub\\wwwroot，IIS 站点目录，或 PHP/Java 容器目录",
+    "webroots": [
+      "C:\\inetpub\\wwwroot",
+      "C:\\xampp\\htdocs",
+      "C:\\phpstudy_pro\\WWW",
+      "C:\\tomcat\\webapps"
+    ],
+    "script_extensions": [
+      ".asp", ".asa", ".aspx", ".ashx", ".asmx", ".ascx", ".cer", ".cdx",
+      ".php", ".php3", ".php4", ".php5", ".php7", ".phtml", ".phar",
+      ".jsp", ".jspx", ".jspf", ".py", ".pl", ".cgi", ".sh", ".bat"
+    ],
+    "interval": 300,
+    "max_file_bytes": 2097152,
+    "exclude_dirs": [
+      "C:\\inetpub\\wwwroot\\aspnet_client",
+      "C:\\Windows\\Microsoft.NET"
+    ]
+  },
+
+  "authlog": { "enabled": false },
+
+  "sniff": {
+    "enabled": false,
+    "_说明": "Windows 上抓包需要 Npcap 和第三方库，本版本不提供；需要看明文请依赖日志"
+  },
+
+  "pcap": {
+    "enabled": false,
+    "watch_dir": "C:\\ProgramData\\webshell-watch\\pcap",
+    "interval": 10,
+    "settle_seconds": 3
+  },
+
+  "output": {
+    "log_dir": "C:\\ProgramData\\webshell-watch\\logs",
+    "save_jsonl": true,
+    "syslog": false,
+    "console": false,
+    "color": true,
+    "verbose": true,
+    "max_history": 5000
+  },
+
+  "webhook": {
+    "enabled": false,
+    "url": "",
+    "format": "generic",
+    "min_severity": "HIGH",
+    "timeout": 5,
+    "headers": {}
+  },
+
+  "notify": { "dedupe_seconds": 300 },
+
+  "runtime": {
+    "pid_file": "C:\\ProgramData\\webshell-watch\\webshell-watch.pid",
+    "state_dir": "C:\\ProgramData\\webshell-watch",
+    "status_interval": 60
+  },
+
+  "rules": { "rule_dir": "C:\\ProgramData\\webshell-watch\\rules" }
+}

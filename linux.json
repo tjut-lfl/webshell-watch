@@ -1,0 +1,110 @@
+{
+  "_说明": [
+    "Linux 版默认配置（Ubuntu 24.04 等）。安装到 /etc/webshell-watch/config.json。",
+    "windows.json 是 Windows 版配置，两份文件结构完全一致，只是默认路径不同。",
+    "所有字段都可省略，缺项使用内置默认值。"
+  ],
+
+  "analyzer": {
+    "min_score": 25,
+    "try_decrypt": true,
+    "passwords": [
+      "rebeyond", "admin", "123456", "pass", "password", "root",
+      "test", "cmd", "shell", "key", "webshell", "hack"
+    ],
+    "max_body_scan": 65536,
+    "disabled_rules": [],
+    "enabled_tools": ["蚁剑", "冰蝎", "哥斯拉", "加密隧道", "通用WebShell", "防守告警"]
+  },
+
+  "weblog": {
+    "enabled": true,
+    "sources": [
+      { "name": "nginx-access", "path": "/var/log/nginx/access.log", "format": "nginx_combined_body" },
+      { "name": "nginx-site", "path": "/var/log/nginx/site.access.log", "format": "nginx_combined_body" },
+      { "name": "apache-access", "path": "/var/log/apache2/access.log", "format": "apache_combined_body" }
+    ],
+    "from_beginning": false,
+    "max_line_bytes": 262144
+  },
+
+  "filescan": {
+    "enabled": true,
+    "webroots": ["/var/www", "/srv/www", "/usr/share/nginx/html"],
+    "script_extensions": [
+      ".php", ".php3", ".php4", ".php5", ".php7", ".phtml", ".phar",
+      ".jsp", ".jspx", ".jspf", ".asp", ".aspx", ".ashx", ".asmx",
+      ".cgi", ".pl", ".py", ".sh", ".war"
+    ],
+    "interval": 300,
+    "max_file_bytes": 2097152,
+    "follow_symlinks": false,
+    "exclude_dirs": [
+      "/var/www/html/wp-content/cache",
+      "/var/www/html/wp-content/uploads",
+      "/node_modules",
+      "/.git",
+      "/vendor/cache"
+    ]
+  },
+
+  "authlog": {
+    "enabled": true,
+    "sources": [
+      { "name": "auth", "path": "/var/log/auth.log" },
+      { "name": "secure", "path": "/var/log/secure" }
+    ],
+    "from_beginning": false,
+    "fail_window": 300,
+    "fail_threshold": 10,
+    "trusted_ips": ["127.0.0.1", "::1"]
+  },
+
+  "iislog": { "enabled": false },
+  "winevent": { "enabled": false },
+  "windrop": { "enabled": false },
+
+  "sniff": {
+    "enabled": false,
+    "interface": "any",
+    "idle_flush": 20.0,
+    "max_flows": 20000
+  },
+
+  "pcap": {
+    "enabled": false,
+    "watch_dir": "/var/lib/webshell-watch/pcap",
+    "interval": 10,
+    "settle_seconds": 3
+  },
+
+  "output": {
+    "log_dir": "/var/log/webshell-watch",
+    "save_jsonl": true,
+    "syslog": true,
+    "syslog_facility": "local0",
+    "console": false,
+    "color": true,
+    "verbose": true,
+    "max_history": 5000
+  },
+
+  "webhook": {
+    "enabled": false,
+    "url": "",
+    "format": "generic",
+    "min_severity": "HIGH",
+    "timeout": 5,
+    "headers": {}
+  },
+
+  "notify": { "dedupe_seconds": 300 },
+
+  "runtime": {
+    "pid_file": "/run/webshell-watch.pid",
+    "state_dir": "/var/lib/webshell-watch",
+    "status_interval": 60
+  },
+
+  "rules": { "rule_dir": "/etc/webshell-watch/rules" }
+}

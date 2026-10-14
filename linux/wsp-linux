@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Linux 版启动入口（Ubuntu 24.04 等）
+#
+#   ./wsp-linux check                   环境与能力自检（建议先跑这个）
+#   ./wsp-linux start --once            单次巡检
+#   sudo ./wsp-linux start --foreground 前台持续监控
+#   sudo ./wsp-linux filescan --update-baseline
+#   ./wsp-linux report
+#
+# 会自动使用项目根目录下的 linux.json 作为默认配置；
+# 正式部署请用 ../install.sh 安装为 systemd 服务。
+# ============================================================================
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(dirname "$SCRIPT_DIR")"
+DEFAULT_CONFIG="${ROOT}/linux.json"
+
+echo "[wsp] 平台：$(uname -srm)"
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "[错误] 未找到 python3。Ubuntu 上执行：sudo apt-get install -y python3" >&2
+  exit 1
+fi
+
+PY_VER="$(python3 -c 'import sys; print("%d.%d" % sys.version_info[:2])')"
+if ! python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3,9) else 1)'; then
+  echo "[错误] Python 版本过低（${PY_VER}），需要 3.9 及以上。" >&2
+  exit 1
+fi
+
+CONFIG="${DEFAULT_CONFIG}"
+if [[ ! -f "${CONFIG}" ]]; then
+  # 退回已安装的系统配置
+  if [[ -f /etc/webshell-watch/config.json ]]; then
+    CONFIG=/etc/webshell-watch/config.json
+  else
+    echo "[错误] 找不到配置 ${CONFIG}，也找不到 /etc/webshell-watch/config.json" >&2
+    exit 1
+  fi
+fi
+
+if [[ "${EUID}" -ne 0 ]]; then
+  echo "[wsp] 提示：当前不是 root，可能读不到 /var/log/nginx、/var/log/auth.log，"
+  echo "      文件巡检也可能不完整。正式运行建议 sudo 或交给 systemd。"
+fi
+
+export WW_CONFIG="${CONFIG}"
+export PYTHONIOENCODING=utf-8
+exec python3 "${ROOT}/wsp.py" "$@"

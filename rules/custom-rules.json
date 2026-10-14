@@ -1,0 +1,81 @@
+{
+  "_说明": [
+    "自定义规则示例目录。install.sh 会把本目录内容复制到 /etc/webshell-watch/rules/。",
+    "文件名以 .json 结尾即会被自动载入；规则 id 与内置规则相同则覆盖内置规则。",
+    "可用 kind：",
+    "  请求/流量侧：substr / regex / header / param / entropy / tls",
+    "  防守侧    ：log（日志字段组合）/ stat（统计阈值）/ filemeta（文件元信息）/ policy（配置基线）",
+    "下面几条默认 enabled=false，按需打开。"
+  ],
+  "rules": [
+    {
+      "id": "MY-001",
+      "tool": "防守告警",
+      "title": "命中本系统特有的接口越权访问特征",
+      "score": 40,
+      "kind": "log",
+      "enabled": false,
+      "meta": {
+        "require_method": ["POST"],
+        "require_path_regex": "/api/internal/(?:export|debug|exec)",
+        "require_missing_header": ["referer"]
+      },
+      "advice": "该接口只允许运维系统调用。请核对该 IP 是否为运维出口，并检查接口鉴权配置。",
+      "tags": ["业务接口", "越权"]
+    },
+    {
+      "id": "MY-002",
+      "tool": "防守告警",
+      "title": "请求参数出现本业务不应存在的命令执行关键字",
+      "score": 45,
+      "kind": "log",
+      "enabled": false,
+      "meta": {
+        "require_regex": "(?:cmd|exec|command|shell)=(?:whoami|id|uname|cat\\s)"
+      },
+      "advice": "业务参数里出现系统命令，通常是 webshell 或命令注入利用。请立即核查该接口实现。",
+      "tags": ["命令注入"]
+    },
+    {
+      "id": "MY-003",
+      "tool": "防守告警",
+      "title": "扫描器探测敏感备份/源码文件（自定义清单）",
+      "score": 30,
+      "kind": "log",
+      "enabled": false,
+      "meta": {
+        "require_regex": "(?:/backup\\.zip|/www\\.zip|/\\.svn/|/composer\\.json|/package\\.json|\\.git/config)"
+      },
+      "advice": "这些文件被探测说明有人在批量找备份与源码。请确认服务器上确实不存在这些文件，必要时在 nginx 直接返回 404。",
+      "tags": ["扫描", "信息泄露"]
+    },
+    {
+      "id": "MY-004",
+      "tool": "防守告警",
+      "title": "本系统专属路径出现 webshell 调用形态",
+      "score": 35,
+      "kind": "log",
+      "enabled": false,
+      "meta": {
+        "require_method": ["POST"],
+        "require_path_regex": "/uploads?/.*\\.(?:php|jsp|aspx)$",
+        "require_body_min": 32
+      },
+      "advice": "上传目录出现对脚本的 POST 请求，说明上传目录被当成了马存放点。请检查上传校验逻辑并禁止上传目录执行脚本。",
+      "tags": ["上传", "webshell"]
+    },
+    {
+      "id": "MY-005",
+      "tool": "防守告警",
+      "title": "把某条内置弱特征规则关掉（示例：站点确实有 /test.php）",
+      "score": 15,
+      "kind": "regex",
+      "enabled": false,
+      "pattern": "/(?:test|info)\\.php\\b",
+      "fields": ["url"],
+      "flags": "i",
+      "advice": "示例：如果你要覆盖内置规则，id 与内置规则保持一致即可。",
+      "tags": ["示例"]
+    }
+  ]
+}
