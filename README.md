@@ -115,7 +115,7 @@ docs/                  详细文档
 本项目是**纯防守工具**，仅用于在你拥有或已获授权的服务器上检测入侵。它不包含任何攻击、利用或远控功能。请遵守当地法律法规；作者不对任何滥用或因使用本工具造成的损失负责。检测结果可能存在误报/漏报，不能替代专业应急响应。
 
 ### 许可证
-[MIT](LICENSE) © 2026 福临 李
+[MIT](LICENSE) © 2026 tjut-lfl
 
 ---
 
@@ -226,4 +226,4 @@ docs/                  detailed documentation
 This is a **purely defensive tool**, intended only for detecting intrusions on servers you own or are authorized to protect. It contains no attack, exploitation or remote-control functionality. Comply with applicable laws; the author accepts no liability for misuse or for any damage arising from use. Detection may produce false positives/negatives and does not replace professional incident response.
 
 ### License
-[MIT](LICENSE) © 2026 福临 李
+[MIT](LICENSE) © 2026 tjut-lfl
